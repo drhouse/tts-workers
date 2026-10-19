@@ -27,7 +27,9 @@ def synth(model, text, ref, ref_text, language):
     import soundfile as sf
     from openvoice import se_extractor
     conv, melo, src_se = model
-    tgt_se, _ = se_extractor.get_se(ref, conv, vad=False)
+    # vad=True splits the reference with Silero VAD; vad=False runs faster-whisper,
+    # whose CTranslate2 GPU path needs a libcublas the image does not carry.
+    tgt_se, _ = se_extractor.get_se(ref, conv, vad=True)
     work = tempfile.mkdtemp()
     base, out = os.path.join(work, "base.wav"), os.path.join(work, "out.wav")
     melo.tts_to_file(text, melo.hps.data.spk2id[BASE], base, speed=1.0)
