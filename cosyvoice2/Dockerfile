@@ -5,7 +5,8 @@ RUN git clone --recursive --depth 1 https://github.com/FunAudioLLM/CosyVoice.git
 WORKDIR /opt/CosyVoice
 # Some sdists import pkg_resources in setup.py, which setuptools >= 70 dropped; the
 # constraint also applies inside pip's isolated build environments.
-RUN echo "setuptools<70" > /tmp/c.txt && PIP_CONSTRAINT=/tmp/c.txt pip install --no-cache-dir -r requirements.txt \n && pip install --no-cache-dir runpod soundfile
+RUN echo "setuptools<70" > /tmp/c.txt && PIP_CONSTRAINT=/tmp/c.txt pip install --no-cache-dir -r requirements.txt \
+ && pip install --no-cache-dir runpod soundfile
 RUN python -c "from huggingface_hub import snapshot_download; snapshot_download('FunAudioLLM/CosyVoice2-0.5B', local_dir='pretrained_models/CosyVoice2-0.5B')"
 WORKDIR /app
 COPY common/serve.py cosyvoice2/handler.py ./
