@@ -25,11 +25,11 @@ def load():
 
 def synth(model, text, ref, ref_text, language):
     import soundfile as sf
-    from openvoice import se_extractor
     conv, melo, src_se = model
-    # vad=True splits the reference with Silero VAD; vad=False runs faster-whisper,
-    # whose CTranslate2 GPU path needs a libcublas the image does not carry.
-    tgt_se, _ = se_extractor.get_se(ref, conv, vad=True)
+    # Voice embedding from the whole reference clip. se_extractor.get_se first splits
+    # long audio with faster-whisper (needs cuBLAS) or Silero VAD (a torch.hub download
+    # that fails at run time); a game line reference is a few seconds, so skip the split.
+    tgt_se = conv.extract_se([ref])
     work = tempfile.mkdtemp()
     base, out = os.path.join(work, "base.wav"), os.path.join(work, "out.wav")
     melo.tts_to_file(text, melo.hps.data.spk2id[BASE], base, speed=1.0)
